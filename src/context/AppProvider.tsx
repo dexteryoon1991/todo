@@ -16,8 +16,11 @@ const data = createContext(initialState)
 
 export function AppProvider({ children }: PropsWithChildren) {
   const [title, setTitle] = useState(initialState.title)
+
   const [activeMenu, setActiveMenu] = useState(false)
-  const menuHandler = useCallback(() => setActiveMenu((prev) => !prev), [])
+
+  const menuHandler = useCallback((action?: "on" | "off") => setActiveMenu((prev) => (action === "on" ? true : action === "off" ? false : !prev)), [])
+
   const [menus, setMenus] = useState<Menu[]>(initialState.menus)
 
   return (

@@ -4,7 +4,7 @@ export interface App {
   title: string
   activeMenu: boolean
   menus: Menu[]
-  menuHandler: () => void
+  menuHandler: (action?: "on" | "off") => void
 }
 
 export interface Menu {
