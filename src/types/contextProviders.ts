@@ -32,6 +32,7 @@ export interface UseDates {
   yearHandler: (action?: TimeAction) => void
   YYMMDD: string
   MMDD: string
+  momentDate: string
 }
 
 export type TimeAction = "dec" | "inc" | "reset"

@@ -1,9 +1,10 @@
 import { TimeSelector, TodoItem } from "@/components"
 import { useAuth, useDates, useTodo } from "@/context"
-import { momentFormat, View } from "@/modules"
+import { momentDateFormat, momentFormat, View } from "@/modules"
 import React, { useEffect, useState } from "react"
 import moment from "moment"
-import { Todo } from "@/types"
+import { Collection, Todo } from "@/types"
+import { dbService } from "@/lib/firebase"
 
 export default function Mytodos() {
   const dates = useDates()
@@ -23,6 +24,24 @@ export default function Mytodos() {
         setTodos(res?.payload ? res.payload : [])
       })
   }, [user])
+
+  useEffect(() => {
+    console.log(dates.momentDate)
+  }, [dates])
+  useEffect(() => {
+    const fetchTodoList = dbService
+      .collection(Collection.USER)
+      .doc(user?.uid)
+      .collection(Collection.TODOS)
+      .orderBy("createdAt", "desc")
+      .where("createdDate", "==", dates.momentDate ?? moment().format(momentDateFormat))
+      .onSnapshot((snap) => {
+        const data = snap.docs.map((doc) => ({ ...doc.data() })) as Todo[]
+        setTodos(data ? data : [])
+      })
+
+    return () => fetchTodoList()
+  }, [dates])
 
   const emptyItem: Todo = {
     body: "아래의 버튼을 눌러 할일을 추가해 주세요.",

@@ -1,4 +1,6 @@
+import { momentDateFormat } from "@/modules"
 import { UseDates, TimeAction } from "@/types"
+import moment from "moment"
 import React, { useState, useCallback, useEffect } from "react"
 
 export default function useDates(): UseDates {
@@ -10,10 +12,12 @@ export default function useDates(): UseDates {
 
   const [YYMMDD, setYYMMDD] = useState("")
   const [MMDD, setMMDD] = useState("")
+  const [momentDate, setMomentDate] = useState("")
 
   useEffect(() => {
     setYYMMDD(`${year}. ${month}. ${date}`)
     setMMDD(`${month}. ${date}`)
+    setMomentDate(moment(`${year}${month < 10 ? `0${month}` : month}${date < 10 ? `0${date}` : date}`).format(momentDateFormat))
   }, [year, month, date])
 
   const months = Array.from({ length: 12 }, (_, i) => i + 1)
@@ -109,5 +113,6 @@ export default function useDates(): UseDates {
     yearHandler,
     YYMMDD,
     MMDD,
+    momentDate,
   }
 }
