@@ -1,4 +1,4 @@
-import { createStitches, globalCss } from "@stitches/react"
+import { createStitches, CSS, globalCss } from "@stitches/react"
 export const Colors = {
   BLACK: "rgb(34, 40, 49)",
   WHITE: "rgb(255, 255, 255)",

@@ -90,10 +90,11 @@ export interface Modal extends State, PropsWithChildren {
 export interface EditTodoProps {
   body: string
   id: string
+  title: string
 }
 export interface TodoProps {
   createTodo: (todo: Todo) => Promise<API>
-  fetchTodo: () => Promise<Todo[]>
+  fetchTodo: () => Promise<FetchTodoApi>
   editTodo: (props: EditTodoProps) => Promise<API>
   deleteTodo: (id: string) => Promise<API>
 }

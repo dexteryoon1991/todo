@@ -4,9 +4,15 @@ import { useAuth, useDates, usePopup, useTodo, useUtils } from "@/context"
 import { ContentSection, TextArea, TimeSelector } from "../utils"
 import Input from "../utils/AppInput"
 import moment from "moment"
+import { Collection, Todo } from "@/types"
+import { dbService } from "@/lib/firebase"
+import { getDoc } from "firebase/firestore"
 
-export function AddTodoModal() {
-  const { modalProps, alert } = usePopup()
+type Props = {
+  payload?: Todo
+}
+export function AddTodoModal({ payload }: Props) {
+  const { modalProps, alert, closeModal } = usePopup()
   const dates = useDates()
   const [title, setTitle] = useState("")
   const titleRef = useRef<HTMLInputElement | null>(null)
@@ -39,20 +45,44 @@ export function AddTodoModal() {
     [focusOnBody]
   )
 
-  const {} = useTodo()
+  const { createTodo, editTodo } = useTodo()
   const { user } = useAuth()
   const { getMoment, getRandomBytes, getMomentDate } = useUtils()
   const onSubmit = useCallback(async () => {
     if (user == null) {
       return alert("로그인 해주세요.")
     }
-    if (titleText) {
-      return alert(titleText, undefined, { onPress: focusOnTitle })
-    }
-    const createdAt = await getMoment()
+    if (payload) {
+      const docRef = dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS).doc(payload.id)
+      const docSnap = await getDoc(docRef)
+      const data = docSnap.data()
+      return console.log(data)
+      await editTodo({ body, id: payload.id, title }).then((res) => console.log(res))
+    } else {
+      if (titleText) {
+        return alert(titleText, undefined, { onPress: focusOnTitle })
+      }
+      const createdAt = await getMoment()
+      const id = await getRandomBytes()
+      const createdDate = await getMomentDate()
 
-    const id = await getRandomBytes()
-  }, [titleText, title, body, moment, alert, getMoment, getRandomBytes, user])
+      await createTodo({ title, body, createdAt, createdBy: user, createdDate, id }).then((res) => {
+        const { success } = res
+        if (success) {
+          setTitle("")
+          setBody("")
+          closeModal()
+        }
+      })
+    }
+  }, [titleText, title, body, moment, alert, getMoment, getRandomBytes, user, payload, closeModal, editTodo])
+
+  useEffect(() => {
+    if (payload) {
+      setTitle(payload.title)
+      setBody(payload.body)
+    }
+  }, [payload])
   return (
     <>
       <ContentSection style={{ rowGap: 20 }}>
@@ -78,7 +108,7 @@ export function AddTodoModal() {
         />
       </ContentSection>
       <Button colors="PRIMARY" css={{ borderRadius: 0 }} type="submit" onClick={onSubmit}>
-        할일 추가
+        {payload ? "할일 수정" : "할일 추가"}
       </Button>
     </>
   )

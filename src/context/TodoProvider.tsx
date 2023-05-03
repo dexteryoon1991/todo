@@ -1,13 +1,13 @@
 import { dbService } from "@/lib/firebase"
-import { API, Collection, Todo, TodoProps, EditTodoProps } from "@/types"
+import { API, Collection, Todo, TodoProps, EditTodoProps, FetchTodoApi } from "@/types"
 import axios from "axios"
-import React, { createContext, PropsWithChildren, useCallback, useContext } from "react"
+import React, { createContext, PropsWithChildren, useCallback, useContext, useEffect } from "react"
 import { useAuth } from "./AuthProvider"
-import { getDocs } from "firebase/firestore"
+import { getDoc, getDocs } from "firebase/firestore"
 import { usePopup } from "./PopupProvider"
 
 const initialState: TodoProps = {
-  fetchTodo: async () => [],
+  fetchTodo: async () => ({ success: false }),
   createTodo: async () => ({ success: false }),
   editTodo: async () => ({ success: false }),
   deleteTodo: async () => ({ success: false }),
@@ -17,15 +17,30 @@ export function TodoProvider({ children }: PropsWithChildren) {
   const { user } = useAuth()
   const { alert } = usePopup()
 
-  const fetchTodo = useCallback(async (): Promise<Todo[]> => {
+  useEffect(() => {
+    const fetch = dbService
+      .collection(Collection.USER)
+      .doc(user?.uid)
+      .collection(Collection.TODOS)
+      .onSnapshot((snap) => {
+        const data = snap.docs.map((doc) => ({ ...doc.data() }))
+        console.log(data)
+      })
+
+    return () => fetch()
+  }, [])
+
+  const fetchTodo = useCallback(async (): Promise<FetchTodoApi> => {
     if (user == null) {
       alert("로그인 해주세요.")
-      return []
+      return { success: false }
     }
 
     let todos: Todo[] = []
 
-    const docSnap = await getDocs(dbService.collection(Collection.USER).where("createdBy", "==", user))
+    // const docSnap = await getDocs(dbService.collection(Collection.USER).where("createdBy", "==", user))
+
+    const docSnap = await getDocs(dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS))
     const result = docSnap.docs.map((doc) => ({ ...doc.data() })) as Todo[]
 
     if (result.length > 0) {
@@ -33,7 +48,7 @@ export function TodoProvider({ children }: PropsWithChildren) {
     }
 
     alert("할일을 가져왔습니다.", undefined, undefined, "success")
-    return todos
+    return { success: true, payload: todos }
   }, [user])
 
   const createTodo = useCallback(
@@ -46,7 +61,7 @@ export function TodoProvider({ children }: PropsWithChildren) {
       const docRef = dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS)
 
       try {
-        await docRef.add(props)
+        await docRef.doc(props.id).set(props)
         alert("추가 되었습니다.", undefined, undefined, "success")
         return { success: true }
       } catch (error: any) {
@@ -63,8 +78,11 @@ export function TodoProvider({ children }: PropsWithChildren) {
         alert("로그인 해주세요.")
         return { success: false }
       }
-      const { id, body } = props
+      const { id, body, title } = props
       const docRef = dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS).doc(id)
+      const docSnap = await getDoc(docRef)
+
+      console.log(docSnap.data())
 
       try {
         await docRef.update({ body })

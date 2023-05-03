@@ -3,20 +3,30 @@ import { Todo } from "@/types"
 import moment from "moment"
 import React, { PropsWithChildren, useCallback, useState } from "react"
 import { ContentSection, Radio, TitleSection } from "../utils"
-import { RiDeleteBack2Line, RiCheckboxCircleLine } from "react-icons/ri"
+import { RiDeleteBack2Line, RiCheckboxCircleLine, RiEditLine } from "react-icons/ri"
 import { CSSProperties } from "@stitches/react"
+import { usePopup } from "@/context"
+import { AddTodoModal } from "./AddTodoModal"
 
 export default function TodoItem(props: Todo) {
   const [isClicked, setIsClicked] = useState(false)
   const clickHandler = useCallback(() => setIsClicked((prev) => !prev), [])
+
+  const { modal } = usePopup()
+  const onEdit = useCallback(() => {
+    modal(props.title, <AddTodoModal payload={props} />)
+  }, [modal])
+
+  const onDone = useCallback(() => console.log("done"), [])
+  const onDelete = useCallback(() => console.log("delete"), [])
   return (
     <>
       {isClicked ? (
-        <ClickedItem {...props} clickHandler={clickHandler}>
+        <ClickedItem {...props} clickHandler={clickHandler} onEdit={onEdit} onDone={onDone} onDelete={onDelete}>
           <RadioItem clickHandler={clickHandler} isClicked={isClicked} />
         </ClickedItem>
       ) : (
-        <Item {...props} clickHandler={clickHandler}>
+        <Item {...props} clickHandler={clickHandler} onEdit={onEdit} onDone={onDone} onDelete={onDelete}>
           <RadioItem clickHandler={clickHandler} isClicked={isClicked} />
         </Item>
       )}
@@ -46,13 +56,13 @@ function RadioItem({ clickHandler, isClicked }: RadioProps) {
   )
 }
 
-type ItemProps = { clickHandler: () => void } & Todo & PropsWithChildren
-function ClickedItem({ body, createdAt, createdBy, id, title, children, clickHandler }: ItemProps) {
+type ItemProps = { clickHandler: () => void; onEdit: () => void; onDone: () => void; onDelete: () => void } & Todo & PropsWithChildren
+function ClickedItem({ body, createdAt, createdBy, id, title, children, clickHandler, onDelete, onDone, onEdit }: ItemProps) {
   const [isHovering, setIsHovering] = useState(false)
   const onHover = useCallback(() => setIsHovering(true), [])
   const onLeave = useCallback(() => setIsHovering(false), [])
   return (
-    <View css={{ position: "relative", borderRadius: 10, backgroundColor: Colors.WHITE }}>
+    <View css={{ position: "relative", borderRadius: 10, backgroundColor: Colors.WHITE, boxShadow: "0 p3x 6px rgba(0,0,0,.2)" }}>
       {children}
       <TitleSection title={title} onPress={clickHandler} />
       <ContentSection style={{ lineHeight: 1.6, position: "relative" }} onMouseEnter={onHover} onMouseLeave={onLeave}>
@@ -72,6 +82,10 @@ function ClickedItem({ body, createdAt, createdBy, id, title, children, clickHan
             transition: "all .5s ease-out",
           }}
           style={isHovering ? { width: "auto", backgroundColor: Colors.PRIMARY, padding: "5px 10px" } : {}}>
+          <Button css={{ ...buttonStyle }} onClick={onEdit}>
+            <Typo size={"SMALL"}>EDIT</Typo>
+            <RiEditLine />
+          </Button>
           <Button css={{ ...buttonStyle }}>
             <Typo size={"SMALL"}>DONE</Typo>
             <RiCheckboxCircleLine />
@@ -86,7 +100,7 @@ function ClickedItem({ body, createdAt, createdBy, id, title, children, clickHan
   )
 }
 
-function Item({ body, createdAt, createdBy, id, title, clickHandler, children }: ItemProps & PropsWithChildren) {
+function Item({ body, createdAt, createdBy, id, title, clickHandler, children, onDelete, onDone, onEdit }: ItemProps & PropsWithChildren) {
   const [isHovering, setIsHovering] = useState(false)
   const onHover = useCallback(() => setIsHovering(true), [])
   const onLeave = useCallback(() => setIsHovering(false), [])
@@ -98,6 +112,7 @@ function Item({ body, createdAt, createdBy, id, title, clickHandler, children }:
         backgroundColor: Colors.WHITE,
         position: "relative",
         cursor: "pointer",
+        boxShadow: "0 p3x 6px rgba(0,0,0,.2)",
         "&:hover": {
           boxShadow: "0 3px 6px rgba(0,0,0,.2)",
         },
@@ -129,6 +144,9 @@ function Item({ body, createdAt, createdBy, id, title, clickHandler, children }:
           alignItems: "center",
         }}
         style={isHovering ? { width: "auto", backgroundColor: Colors.PRIMARY, padding: "0 10px" } : {}}>
+        <Button css={{ ...buttonStyle }} onClick={onEdit}>
+          <RiEditLine />
+        </Button>
         <Button css={{ ...buttonStyle }}>
           <RiCheckboxCircleLine />
         </Button>

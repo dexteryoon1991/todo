@@ -23,7 +23,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const docSnap = await getDocs(docRef)
     const users = docSnap.docs.map((doc) => ({ ...doc.data() })) as User[]
 
-    console.log(users)
     if (users.length === 0) {
       return null
     }
@@ -40,8 +39,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       value={{
         isLoggedIn,
         user,
-      }}
-    >
+      }}>
       {children}
     </data.Provider>
   )

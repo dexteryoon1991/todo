@@ -1,9 +1,9 @@
 import { useState, useCallback } from "react"
 import { View, Button, Colors } from "@/modules"
-import { CSSProperties } from "@stitches/react"
+import { CSSProperties, CSS } from "@stitches/react"
 
 interface Props {
-  style?: CSSProperties
+  style?: CSSProperties | CSS
   state?: boolean
   onPress?: () => void
   color?: string
