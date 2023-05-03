@@ -1,19 +1,24 @@
-import { useApp } from "@/context"
+import { useApp, useAuth } from "@/context"
 import { Colors, View } from "@/modules"
 import React, { useCallback } from "react"
 import { AppButton } from "../utils"
 import MenuIcon from "./MenuIcon"
-import { CSS } from "@stitches/react"
 import { useRouter } from "next/router"
 
 export default function Header({ maxWidth }: { maxWidth?: number }) {
   const { title, activeMenu, menuHandler } = useApp()
 
+  const { isLoggedIn } = useAuth()
+
   const router = useRouter()
   const onTitle = useCallback(() => {
     menuHandler("off")
-    router.pathname !== "/" && router.push("/")
-  }, [menuHandler])
+    if (!isLoggedIn) {
+      return router.pathname !== "/" && router.push("/")
+    }
+    router.push({ pathname: "/mytodos" })
+  }, [menuHandler, isLoggedIn])
+
   return (
     <View
       as="header"
@@ -27,8 +32,7 @@ export default function Header({ maxWidth }: { maxWidth?: number }) {
         left: "50%",
         transform: "translateX(-50%)",
         maxWidth,
-      }}
-    >
+      }}>
       <View css={{ flexDirection: "row", justifyContent: "center", alignItems: "center", position: "relative", height: 50 }}>
         <AppButton style={{ border: "none", fontSize: 25, fontWeight: 900, color: Colors.PRIMARY, backgroundColor: "transparent" }} onPress={onTitle}>
           {title}

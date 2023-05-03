@@ -4,7 +4,8 @@ import KakaoProvider from "next-auth/providers/kakao"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { AuthOptions } from "next-auth"
 import crypto from "crypto"
-import { getDoc } from "firebase/firestore"
+import { KakaoAccount, Collection } from "@/types"
+import { dbService } from "@/lib/firebase"
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -57,7 +58,23 @@ export const authOptions: AuthOptions = {
     async jwt({ token, account, profile }) {
       if (profile) {
         const uid = await crypto.randomBytes(16).toString("hex")
-        console.log(profile)
+        const { kakao_account } = profile as { kakao_account: KakaoAccount }
+        let email = ""
+        let name = ""
+        if (kakao_account) {
+          email = kakao_account.email
+        } else {
+          email = profile.email as string
+          name = profile.name as string
+        }
+        const docRef = dbService.collection(Collection.USER).doc(uid)
+
+        try {
+          await docRef.set(name ? { email, name, uid } : { email, uid })
+          console.log("new user signed up", { email, uid, name })
+        } catch (error: any) {
+          throw new Error(error.message)
+        }
       }
       if (account) {
         token.accessToken = account.access_token
@@ -65,7 +82,8 @@ export const authOptions: AuthOptions = {
       return token
     },
     async session({ session, token, user }) {
-      return session
+      console.log(user)
+      return { ...session }
     },
     async redirect({ url, baseUrl }) {
       if (url.startsWith("/")) {

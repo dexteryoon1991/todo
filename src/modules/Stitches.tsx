@@ -63,7 +63,7 @@ export const View = styled("div", {
         top: 0,
       },
       fullPage: { width: "100%", height: "100vh", alignItems: "center", justifyContent: "center" },
-      page: { padding: 10, rowGap: 30, maxWidth: 600, margin: "0 auto", width: "calc(100% - 20px)" },
+      page: { padding: "50px 0", rowGap: 30, maxWidth: 600, margin: "0 auto", width: "calc(100% - 20px)" },
     },
   },
 })
@@ -77,6 +77,7 @@ export const Button = styled("button", {
   justifyContent: "center",
   alignItems: "center",
   backgroundColor: Colors.WHITE,
+  transition: "all .2s ease-out",
   color: Colors.BLACK,
   "&:active": {
     transform: "scale(.9)",

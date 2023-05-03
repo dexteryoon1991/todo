@@ -1,6 +1,7 @@
 import { useApp } from "@/context"
 import { Button, Colors, View } from "@/modules"
 import { Menu } from "@/types"
+import { useRouter } from "next/router"
 import React, { useCallback } from "react"
 
 export default function Menubar({ maxWidth }: { maxWidth?: number }) {
@@ -19,8 +20,25 @@ export default function Menubar({ maxWidth }: { maxWidth?: number }) {
 }
 
 function MenubarItem(props: Menu) {
+  const { menuHandler } = useApp()
   const { name } = props
-  const onClick = useCallback(() => {}, [props])
+  const router = useRouter()
+  const onClick = useCallback(() => {
+    menuHandler("off")
+
+    const { name, path } = props
+
+    if (!path) {
+      console.log(name)
+
+      if (name === "로그아웃") {
+        return
+      }
+      return
+    }
+
+    return router.push({ pathname: path })
+  }, [props, menuHandler])
   return (
     <Button
       css={{ color: Colors.PRIMARY, backgroundColor: "transparent", border: "none", "&:hover": { backgroundColor: "rgba(255, 255, 255, .1)" } }}

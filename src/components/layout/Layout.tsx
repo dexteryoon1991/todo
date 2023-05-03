@@ -5,6 +5,7 @@ import Menubar from "./Menubar"
 import { globalCss } from "@stitches/react"
 import { useSession } from "next-auth/react"
 import { Colors, View } from "@/modules"
+import { Alert, Confirm, Modal } from "../utils"
 
 export default function Layout({ children }: PropsWithChildren) {
   const style = globalCss({
@@ -45,6 +46,9 @@ export default function Layout({ children }: PropsWithChildren) {
       <Navbar maxWidth={maxWidth} />
       <Menubar maxWidth={maxWidth} />
       {children}
+      <Alert />
+      <Confirm />
+      <Modal />
     </View>
   )
 }
