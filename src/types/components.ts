@@ -7,5 +7,6 @@ export interface Todo {
   title: string
   createdBy: User
   createdAt: string
+  createdDate: string
   id: string
 }

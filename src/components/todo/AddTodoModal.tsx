@@ -1,6 +1,6 @@
 import { Colors, Button } from "@/modules"
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useDates, usePopup, useTodo, useUtils } from "@/context"
+import { useAuth, useDates, usePopup, useTodo, useUtils } from "@/context"
 import { ContentSection, TextArea, TimeSelector } from "../utils"
 import Input from "../utils/AppInput"
 import moment from "moment"
@@ -40,13 +40,19 @@ export function AddTodoModal() {
   )
 
   const {} = useTodo()
-  const { getMoment, getRandomBytes } = useUtils()
+  const { user } = useAuth()
+  const { getMoment, getRandomBytes, getMomentDate } = useUtils()
   const onSubmit = useCallback(async () => {
+    if (user == null) {
+      return alert("로그인 해주세요.")
+    }
     if (titleText) {
       return alert(titleText, undefined, { onPress: focusOnTitle })
     }
-    console.log(await getMoment(), await getRandomBytes())
-  }, [titleText, title, body, moment, alert, getMoment, getRandomBytes])
+    const createdAt = await getMoment()
+
+    const id = await getRandomBytes()
+  }, [titleText, title, body, moment, alert, getMoment, getRandomBytes, user])
   return (
     <>
       <ContentSection style={{ rowGap: 20 }}>

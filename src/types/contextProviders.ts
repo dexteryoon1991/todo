@@ -1,7 +1,7 @@
 import { CSSProperties } from "@stitches/react"
 import { PropsWithChildren } from "react"
 import { IconType } from "react-icons"
-import { API } from "./api"
+import { API, FetchTodoApi } from "./api"
 import { Todo } from "./components"
 
 export interface App {
@@ -43,11 +43,13 @@ export interface User {
   profileImage?: string
 }
 
+export type AlertType = "alert" | "success"
+
 export interface Popup {
   alertProps: Alert
   confirmProps: Confirm
   modalProps: Modal
-  alert: (message?: string, title?: string, button?: PopupButton) => void
+  alert: (message?: string, title?: string, button?: PopupButton, type?: AlertType) => void
   confirm: (message?: string, title?: string, button?: PopupButton[]) => void
   modal: (title?: string, content?: any, buttons?: PopupButton[], payload?: any) => void
   closeAlert: () => void
@@ -85,6 +87,13 @@ export interface Modal extends State, PropsWithChildren {
   buttons?: PopupButton[]
 }
 
+export interface EditTodoProps {
+  body: string
+  id: string
+}
 export interface TodoProps {
-  createTodo: (props: Todo) => Promise<API>
+  createTodo: (todo: Todo) => Promise<API>
+  fetchTodo: () => Promise<Todo[]>
+  editTodo: (props: EditTodoProps) => Promise<API>
+  deleteTodo: (id: string) => Promise<API>
 }

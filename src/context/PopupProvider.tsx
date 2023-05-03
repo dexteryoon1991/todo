@@ -1,4 +1,4 @@
-import { Alert, Confirm, Modal, Popup, PopupButton } from "@/types"
+import { Alert, AlertType, Confirm, Modal, Popup, PopupButton } from "@/types"
 import { AnyRecord } from "dns"
 import React, { createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from "react"
 
@@ -21,7 +21,10 @@ export function PopupProvider({ children }: PropsWithChildren) {
   const [confirmProps, setConfirmProps] = useState<Confirm>(initialState.confirmProps)
   const [modalProps, setModalProps] = useState<Modal>(initialState.modalProps)
 
-  const alert = useCallback((message?: string, title?: string, button?: PopupButton) => setAlertProps({ state: true, message, title, button }), [])
+  const alert = useCallback(
+    (message?: string, title?: string, button?: PopupButton, type?: AlertType) => setAlertProps({ state: true, message, title, button, type }),
+    []
+  )
 
   const confirm = useCallback((message?: string, title?: string, button?: PopupButton[]) => setConfirmProps({ state: true, message, title, button }), [])
 
@@ -39,11 +42,6 @@ export function PopupProvider({ children }: PropsWithChildren) {
     closeModal()
   }, [closeAlert, closeConfirm, closeModal])
 
-  useEffect(() => {
-    console.log(alertProps)
-  }, [alertProps])
-
-  useEffect(() => console.log("hi from popup Provider"), [])
   return (
     <data.Provider value={{ alert, alertProps, closeAlert, closeConfirm, closeModal, closeAll, confirmProps, modalProps, confirm, modal }}>
       {children}
