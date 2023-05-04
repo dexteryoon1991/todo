@@ -30,26 +30,29 @@ export function TodoProvider({ children }: PropsWithChildren) {
     return () => fetch()
   }, [])
 
-  const fetchTodo = useCallback(async (): Promise<FetchTodoApi> => {
-    if (user == null) {
-      alert("로그인 해주세요.")
-      return { success: false }
-    }
+  const fetchTodo = useCallback(
+    async (createdDate: string): Promise<FetchTodoApi> => {
+      if (user == null) {
+        alert("로그인 해주세요.")
+        return { success: false }
+      }
 
-    let todos: Todo[] = []
+      let todos: Todo[] = []
 
-    // const docSnap = await getDocs(dbService.collection(Collection.USER).where("createdBy", "==", user))
+      // const docSnap = await getDocs(dbService.collection(Collection.USER).where("createdBy", "==", user))
 
-    const docSnap = await getDocs(dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS))
-    const result = docSnap.docs.map((doc) => ({ ...doc.data() })) as Todo[]
+      const docSnap = await getDocs(dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS))
+      const result = docSnap.docs.map((doc) => ({ ...doc.data() })) as Todo[]
 
-    if (result.length > 0) {
-      todos = result
-    }
+      if (result.length > 0) {
+        todos = result
+      }
 
-    alert("할일을 가져왔습니다.", undefined, undefined, "success")
-    return { success: true, payload: todos }
-  }, [user])
+      alert("할일을 가져왔습니다.", undefined, undefined, "success")
+      return { success: true, payload: todos }
+    },
+    [user]
+  )
 
   const createTodo = useCallback(
     async (props: Todo): Promise<API> => {

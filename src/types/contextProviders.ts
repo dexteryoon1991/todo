@@ -95,7 +95,7 @@ export interface EditTodoProps {
 }
 export interface TodoProps {
   createTodo: (todo: Todo) => Promise<API>
-  fetchTodo: () => Promise<FetchTodoApi>
+  fetchTodo: (createdDate: string) => Promise<FetchTodoApi>
   editTodo: (props: EditTodoProps) => Promise<API>
   deleteTodo: (id: string) => Promise<API>
 }
