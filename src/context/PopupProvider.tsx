@@ -26,7 +26,10 @@ export function PopupProvider({ children }: PropsWithChildren) {
     []
   )
 
-  const confirm = useCallback((message?: string, title?: string, button?: PopupButton[]) => setConfirmProps({ state: true, message, title, button }), [])
+  const confirm = useCallback(
+    (message?: string, onPress?: () => void, button?: PopupButton[], title?: string) => setConfirmProps({ state: true, message, title, button, onPress }),
+    []
+  )
 
   const modal = useCallback(
     (title?: string, content?: any, buttons?: PopupButton[], payload?: any) => setModalProps({ state: true, title, payload, children: content, buttons }),

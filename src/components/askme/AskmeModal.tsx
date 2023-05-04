@@ -3,8 +3,12 @@ import { Button, Colors, View } from "@/modules"
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AppInput, ContentSection, TextArea } from "../utils"
 import bcrypt from "bcryptjs"
+import { Askme } from "@/types"
 
-export default function AskmeModal() {
+interface Props {
+  payload?: Askme
+}
+export default function AskmeModal({ payload }: Props) {
   const { alert, closeModal } = usePopup()
 
   const [title, setTitle] = useState("")

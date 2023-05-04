@@ -51,7 +51,7 @@ export interface Popup {
   confirmProps: Confirm
   modalProps: Modal
   alert: (message?: string, title?: string, button?: PopupButton, type?: AlertType) => void
-  confirm: (message?: string, title?: string, button?: PopupButton[]) => void
+  confirm: (message?: string, onPress?: () => void, button?: PopupButton[], title?: string) => void
   modal: (title?: string, content?: any, buttons?: PopupButton[], payload?: any) => void
   closeAlert: () => void
   closeConfirm: () => void
@@ -80,6 +80,7 @@ export interface PopupButton {
 
 export interface Confirm extends State, TitleAndMessage {
   button?: PopupButton[]
+  onPress?: () => void
 }
 
 export interface Modal extends State, PropsWithChildren {
@@ -100,6 +101,7 @@ export interface TodoProps {
   editTodo: (props: EditTodoProps) => Promise<API>
   deleteTodo: (id: string) => Promise<API>
   doneTodo: (id: string) => Promise<API>
+  meToo: (todo: Todo) => Promise<API>
   todos: Todo[]
 }
 

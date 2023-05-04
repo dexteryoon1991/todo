@@ -1,5 +1,5 @@
 import { TimeSelector, TodoItem } from "@/components"
-import { useDates } from "@/context"
+import { useAuth, useDates } from "@/context"
 import { dbService } from "@/lib/firebase"
 import { momentFormat, View } from "@/modules"
 import { Collection, Todo, User } from "@/types"
@@ -22,8 +22,12 @@ export default function Otherstodos() {
 
   const [todos, setTodos] = useState<Todo[]>([])
 
+  const { user } = useAuth()
   useEffect(() => {
-    users.map(async (user) => {
+    let copiedUsers = users.filter((item) => item.email !== user?.email)
+    console.log(copiedUsers)
+
+    copiedUsers.map(async (user) => {
       const userRef = dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS).where("scheduledDate", "==", dates.YYMMDD)
       const userSnap = await getDocs(userRef)
       const data = userSnap.docs.map((doc) => ({ ...doc.data() })) as Todo[]
@@ -34,7 +38,7 @@ export default function Otherstodos() {
         return copy
       })
     })
-  }, [users, dates.YYMMDD])
+  }, [users, dates.YYMMDD, user])
 
   const emptyItem: Todo = {
     body: "아래의 버튼을 눌러 할일을 추가해 주세요.",

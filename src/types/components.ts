@@ -11,4 +11,5 @@ export interface Todo {
   id: string
   isDone?: boolean
   scheduledDate: string
+  originalId?: string
 }

@@ -13,7 +13,7 @@ export default function Mytodos() {
 
   useEffect(() => {
     const newTodos = data.filter((item) => item.scheduledDate === dates.YYMMDD)
-    console.log(newTodos)
+
     setTodos(newTodos)
   }, [dates.YYMMDD, data])
 

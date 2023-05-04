@@ -12,7 +12,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const { data: session, status } = useSession()
 
   useEffect(() => {
-    setIsLoggedIn((prev) => (status !== "authenticated" ? false : true))
+    if (status !== "authenticated") {
+      setIsLoggedIn(false)
+    } else setIsLoggedIn(true)
   }, [status])
 
   const [user, setUser] = useState<User | null>(null)
@@ -30,7 +32,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [])
 
   useEffect(() => {
-    session && fetchUser(session).then((user) => (user ? setUser(user) : console.log(user, "no user")))
+    session && fetchUser(session).then((user) => (user ? setUser(user) : console.log("need to login")))
     // setUser()
   }, [session])
 

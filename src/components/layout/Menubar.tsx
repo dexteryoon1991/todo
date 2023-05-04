@@ -1,6 +1,7 @@
-import { useApp } from "@/context"
+import { useApp, usePopup } from "@/context"
 import { Button, Colors, View } from "@/modules"
 import { Menu } from "@/types"
+import { signOut } from "next-auth/react"
 import { useRouter } from "next/router"
 import React, { useCallback } from "react"
 
@@ -23,6 +24,8 @@ function MenubarItem(props: Menu) {
   const { menuHandler } = useApp()
   const { name } = props
   const router = useRouter()
+  const { confirm } = usePopup()
+
   const onClick = useCallback(() => {
     menuHandler("off")
 
@@ -32,13 +35,13 @@ function MenubarItem(props: Menu) {
       console.log(name)
 
       if (name === "로그아웃") {
-        return
+        return confirm("로그아웃 하시겠습니까?", () => signOut(), [{ name }])
       }
       return
     }
 
     return router.push({ pathname: path })
-  }, [props, menuHandler])
+  }, [props, menuHandler, confirm, signOut])
   return (
     <Button
       css={{ color: Colors.PRIMARY, backgroundColor: "transparent", border: "none", "&:hover": { backgroundColor: "rgba(255, 255, 255, .1)" } }}
