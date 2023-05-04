@@ -9,4 +9,6 @@ export interface Todo {
   createdAt: string
   createdDate: string
   id: string
+  isDone?: boolean
+  scheduledDate: string
 }

@@ -1,7 +1,6 @@
 import { dbService } from "@/lib/firebase"
 import { API, Collection, Todo, TodoProps, EditTodoProps, FetchTodoApi } from "@/types"
-import axios from "axios"
-import React, { createContext, PropsWithChildren, useCallback, useContext, useEffect } from "react"
+import React, { createContext, PropsWithChildren, use, useCallback, useContext, useEffect, useState } from "react"
 import { useAuth } from "./AuthProvider"
 import { getDoc, getDocs } from "firebase/firestore"
 import { usePopup } from "./PopupProvider"
@@ -11,27 +10,30 @@ const initialState: TodoProps = {
   createTodo: async () => ({ success: false }),
   editTodo: async () => ({ success: false }),
   deleteTodo: async () => ({ success: false }),
+  doneTodo: async () => ({ success: false }),
 }
 const data = createContext(initialState)
 export function TodoProvider({ children }: PropsWithChildren) {
   const { user } = useAuth()
   const { alert } = usePopup()
 
+  const [todos, setTodos] = useState<Todo[]>([])
+
   useEffect(() => {
-    const fetch = dbService
+    const listner = dbService
       .collection(Collection.USER)
       .doc(user?.uid)
       .collection(Collection.TODOS)
+      .orderBy("createdAt", "asc")
       .onSnapshot((snap) => {
-        const data = snap.docs.map((doc) => ({ ...doc.data() }))
-        console.log(data)
+        const data = snap.docs.map((doc) => ({ ...doc.data() })) as Todo[]
+        setTodos(data)
       })
-
-    return () => fetch()
-  }, [])
+    return () => listner()
+  }, [user])
 
   const fetchTodo = useCallback(
-    async (createdDate: string): Promise<FetchTodoApi> => {
+    async (createdDate?: string): Promise<FetchTodoApi> => {
       if (user == null) {
         alert("로그인 해주세요.")
         return { success: false }
@@ -41,7 +43,8 @@ export function TodoProvider({ children }: PropsWithChildren) {
 
       // const docSnap = await getDocs(dbService.collection(Collection.USER).where("createdBy", "==", user))
 
-      const docSnap = await getDocs(dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS))
+      const docRef = dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS)
+      const docSnap = await getDocs(createdDate ? docRef.where("createdDate", "==", createdDate) : docRef)
       const result = docSnap.docs.map((doc) => ({ ...doc.data() })) as Todo[]
 
       if (result.length > 0) {
@@ -83,12 +86,9 @@ export function TodoProvider({ children }: PropsWithChildren) {
       }
       const { id, body, title } = props
       const docRef = dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS).doc(id)
-      const docSnap = await getDoc(docRef)
-
-      console.log(docSnap.data())
 
       try {
-        await docRef.update({ body })
+        await docRef.update({ body, title })
         alert("업데이트 되었습니다.", undefined, undefined, "success")
         return { success: true }
       } catch (error: any) {
@@ -108,6 +108,7 @@ export function TodoProvider({ children }: PropsWithChildren) {
       const docRef = dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS).doc(id)
 
       try {
+        console.log("deleting todo")
         await docRef.delete()
         alert("삭제 되었습니다.", undefined, undefined, "success")
         return { success: true }
@@ -118,7 +119,33 @@ export function TodoProvider({ children }: PropsWithChildren) {
     },
     [alert, user]
   )
-  return <data.Provider value={{ fetchTodo, createTodo, deleteTodo, editTodo }}>{children}</data.Provider>
+
+  const doneTodo = useCallback(
+    async (id: string): Promise<API> => {
+      if (user == null) {
+        return { success: false, message: "로그인 해주세요." }
+      }
+      const docRef = dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS).doc(id)
+      const docSnap = await getDoc(docRef)
+      const doc = docSnap.data() as Todo
+      let isDone = true
+
+      console.log(doc)
+      if (doc.isDone) {
+        isDone = false
+      }
+
+      try {
+        await docRef.update({ isDone })
+        alert(doc.isDone ? "다시 화이팅!" : "할일을 끝냈습니다!", undefined, undefined, doc.isDone ? "alert" : "success")
+        return { success: true }
+      } catch (error: any) {
+        return { success: false, message: error.message }
+      }
+    },
+    [user]
+  )
+  return <data.Provider value={{ fetchTodo, createTodo, deleteTodo, editTodo, doneTodo, todos }}>{children}</data.Provider>
 }
 
 export function useTodo() {

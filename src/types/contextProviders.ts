@@ -93,9 +93,25 @@ export interface EditTodoProps {
   id: string
   title: string
 }
+
 export interface TodoProps {
   createTodo: (todo: Todo) => Promise<API>
-  fetchTodo: (createdDate: string) => Promise<FetchTodoApi>
+  fetchTodo: (createdDate?: string) => Promise<FetchTodoApi>
   editTodo: (props: EditTodoProps) => Promise<API>
   deleteTodo: (id: string) => Promise<API>
+  doneTodo: (id: string) => Promise<API>
+  todos: Todo[]
+}
+
+export interface Askme {
+  title: string
+  body: string
+  id: string
+  createdAt: string
+  createdDate: string
+  createdBy?: User | { email: string; password: string }
+}
+
+export interface Ask {
+  createAsk: (askme: Askme) => Promise<API>
 }

@@ -7,6 +7,7 @@ import { AiOutlineUser, AiOutlineUserAdd, AiOutlineUsergroupAdd } from "react-ic
 import { IoExitOutline } from "react-icons/io5"
 import { BsHeadset } from "react-icons/bs"
 import { useSession } from "next-auth/react"
+import { AskProvider } from "./AskProvider"
 
 const initialMenus: Menu[] = [
   { name: "로그인", path: "/signin", icon: AiOutlineUser },
@@ -40,7 +41,9 @@ export function AppProvider({ children }: PropsWithChildren) {
     <data.Provider value={{ title, activeMenu, menuHandler, menus }}>
       <AuthProvider>
         <PopupProvider>
-          <TodoProvider>{children}</TodoProvider>
+          <TodoProvider>
+            <AskProvider>{children}</AskProvider>
+          </TodoProvider>
         </PopupProvider>
       </AuthProvider>
     </data.Provider>

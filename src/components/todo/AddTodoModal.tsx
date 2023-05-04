@@ -4,10 +4,7 @@ import { useAuth, useDates, usePopup, useTodo, useUtils } from "@/context"
 import { ContentSection, TextArea, TimeSelector } from "../utils"
 import Input from "../utils/AppInput"
 import moment from "moment"
-import { Collection, Todo } from "@/types"
-import { dbService } from "@/lib/firebase"
-import { getDoc } from "firebase/firestore"
-
+import { Todo } from "@/types"
 type Props = {
   payload?: Todo
 }
@@ -53,11 +50,7 @@ export function AddTodoModal({ payload }: Props) {
       return alert("로그인 해주세요.")
     }
     if (payload) {
-      const docRef = dbService.collection(Collection.USER).doc(user.uid).collection(Collection.TODOS).doc(payload.id)
-      const docSnap = await getDoc(docRef)
-      const data = docSnap.data()
-      return console.log(data)
-      await editTodo({ body, id: payload.id, title }).then((res) => console.log(res))
+      await editTodo({ body, id: payload.id, title }).then((res) => (res.success ? closeModal() : alert(res.message)))
     } else {
       if (titleText) {
         return alert(titleText, undefined, { onPress: focusOnTitle })
@@ -65,8 +58,9 @@ export function AddTodoModal({ payload }: Props) {
       const createdAt = await getMoment()
       const id = await getRandomBytes()
       const createdDate = await getMomentDate()
+      const scheduledDate = dates.YYMMDD
 
-      await createTodo({ title, body, createdAt, createdBy: user, createdDate, id }).then((res) => {
+      await createTodo({ title, body, createdAt, createdBy: user, createdDate, id, scheduledDate }).then((res) => {
         const { success } = res
         if (success) {
           setTitle("")
@@ -75,7 +69,7 @@ export function AddTodoModal({ payload }: Props) {
         }
       })
     }
-  }, [titleText, title, body, moment, alert, getMoment, getRandomBytes, user, payload, closeModal, editTodo])
+  }, [titleText, title, body, moment, alert, getMoment, getRandomBytes, user, payload, closeModal, editTodo, dates])
 
   useEffect(() => {
     if (payload) {

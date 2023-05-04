@@ -33,4 +33,5 @@ export interface GoogleProfile {
 export enum Collection {
   USER = "user",
   TODOS = "todos",
+  ASKME = "askme",
 }
